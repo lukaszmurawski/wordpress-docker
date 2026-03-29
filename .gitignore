@@ -1,0 +1,11 @@
+.env
+
+db_data/*
+
+wordpress/*
+
+nginx/ssl/*
+!nginx/ssl/*.dist
+
+nginx/conf.d/*
+!nginx/conf.d/*.dist
