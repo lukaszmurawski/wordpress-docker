@@ -17,6 +17,8 @@ services:
       retries: 10
     volumes:
       - ./db_data:/var/lib/mysql
+    networks:
+      - backend
 
   wordpress:
     image: wordpress:fpm-alpine
@@ -33,6 +35,9 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    networks:
+      - backend
+      - frontend
 
   nginx:
     image: nginx:alpine
@@ -47,6 +52,8 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
       - wordpress
+    networks:
+      - frontend
 
   wpcli:
     image: wordpress:cli
@@ -62,3 +69,9 @@ services:
       - mysql
     profiles:
       - cli
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
