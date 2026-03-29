@@ -23,6 +23,7 @@ services:
   wordpress:
     image: wordpress:fpm-alpine
     container_name: wordpress
+    user: "1000:1000"
     restart: unless-stopped
     env_file: .env
     environment:
@@ -58,6 +59,7 @@ services:
   wpcli:
     image: wordpress:cli
     container_name: wpcli
+    user: "1000:1000"
     volumes:
       - ./wordpress:/var/www/html
     environment:

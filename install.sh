@@ -45,11 +45,11 @@ openssl req -new -key "nginx/ssl/$DOMAIN.key" -out "nginx/ssl/$DOMAIN.csr" -subj
 openssl x509 -req -in "nginx/ssl/$DOMAIN.csr" -CA nginx/ssl/rootCA.pem -CAkey nginx/ssl/rootCA.key -CAcreateserial -out "nginx/ssl/$DOMAIN.crt" -days 825 -sha256 -extfile "nginx/ssl/$DOMAIN.ext"
 
 # Start Infrastructure
-docker-compose up -d mysql wordpress nginx
+docker compose up -d mysql wordpress nginx
 
 # Wait for MySQL
 echo "Waiting for MySQL to be ready..."
-until docker-compose exec -e MYSQL_PWD="$DB_ROOT_PASSWORD" mysql mysqladmin ping -h"localhost" -u"root" --silent; do
+until docker compose exec mysql mysql -u"$DB_USER" -p"$DB_PASSWORD" -e "SELECT 1;" "$DB_NAME" &>/dev/null; do
     echo "Waiting..."
     sleep 2
 done
@@ -57,7 +57,9 @@ done
 # WP-CLI - Setup
 # memory_limit=512M - prevents memory errors
 echo "Creating config..."
-docker-compose run --rm --entrypoint "php -d memory_limit=512M /usr/local/bin/wp" wpcli config create \
+docker compose run --rm \
+    -e WP_CLI_PHP_ARGS="-d memory_limit=512M" \
+    wpcli wp config create \
     --dbname="$DB_NAME" \
     --dbuser="$DB_USER" \
     --dbpass="$DB_PASSWORD" \
@@ -65,7 +67,7 @@ docker-compose run --rm --entrypoint "php -d memory_limit=512M /usr/local/bin/wp
     --force
 
 echo "Installing..."
-docker-compose run --rm wpcli wp core install \
+docker compose run --rm wpcli wp core install \
     --url="https://$DOMAIN" \
     --title="$TITLE" \
     --admin_user="$ADMIN_USER" \
@@ -75,8 +77,8 @@ docker-compose run --rm wpcli wp core install \
 
 # FIX PERMISSIONS
 echo "Fixing permissions..."
-docker-compose exec -u root wordpress chown -R www-data:www-data /var/www/html
-docker-compose exec -u root nginx chmod -R 755 /var/www/html
+docker compose exec -u root wordpress chmod -R u=rwX,go=rX /var/www/html
+docker compose exec -u root wordpress chmod 640 /var/www/html/wp-config.php
 
 echo "================================================="
 echo " DONE!"
