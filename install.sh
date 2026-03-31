@@ -5,12 +5,14 @@ echo "==============================="
 echo "   WordPress Stack Installer   "
 echo "==============================="
 
-# Check if already installed + reinstall mechanism
 FORCE=false
+LANG=""
 for arg in "$@"; do
     [ "$arg" = "--force" ] && FORCE=true
+    [[ "$arg" == --lang=* ]] && LANG="${arg#--lang=}"
 done
 
+# Check if already installed + reinstall mechanism
 if [ -f ".env" ] || [ -d "db_data" ] || [ -d "wordpress" ]; then
     if [ "$FORCE" = true ]; then
         echo "Force reinstall — removing existing installation..."
@@ -109,6 +111,11 @@ docker compose run --rm wpcli wp core install \
     --admin_password="$ADMIN_PASS" \
     --admin_email="$ADMIN_EMAIL" \
     --skip-email
+
+if [ -n "$LANG" ]; then
+    echo "Installing language pack: $LANG..."
+    docker compose run --rm wpcli wp language core install "$LANG" --activate
+fi
 
 # FIX PERMISSIONS
 echo "Fixing permissions..."
