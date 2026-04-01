@@ -29,14 +29,14 @@ if [ -f ".env" ] || [ -d "db_data" ] || [ -d "wordpress" ]; then
     fi
 fi
 
-
-
 # Setup Questions
 read -p "Enter domain (e.g. site.local): " DOMAIN
 if [ -z "$DOMAIN" ]; then
     echo "Error: domain cannot be empty"
     exit 1
 fi
+
+PROJECT_NAME=${DOMAIN:-wordpress}
 
 read -p "WP Site Title: " TITLE
 
@@ -61,6 +61,8 @@ sed -i 's/\r//' .env
 sed -i "s/^DOMAIN_NAME=.*/DOMAIN_NAME=$DOMAIN/" .env
 sed -i "s/^DB_ROOT_PASSWORD=.*/DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD/" .env
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
+sed -i "s/^PROJECT_NAME=.*/PROJECT_NAME=$PROJECT_NAME/" .env
+
 export $(grep -v '^#' .env | xargs)
 
 # SSL & Config
