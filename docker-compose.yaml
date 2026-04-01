@@ -1,7 +1,6 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: ${PROJECT_NAME}_mysql
     restart: unless-stopped
     ports:
       - "3306:3306"
@@ -22,7 +21,6 @@ services:
 
   wordpress:
     image: wordpress:fpm-alpine
-    container_name: ${PROJECT_NAME}_wordpress
     user: "1000:1000"
     restart: unless-stopped
     env_file: .env
@@ -42,7 +40,6 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: ${PROJECT_NAME}_nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -58,7 +55,6 @@ services:
 
   wpcli:
     image: wordpress:cli
-    container_name: ${PROJECT_NAME}_wpcli
     user: "1000:1000"
     volumes:
       - ./wordpress:/var/www/html

@@ -36,7 +36,7 @@ if [ -z "$DOMAIN" ]; then
     exit 1
 fi
 
-PROJECT_NAME=${DOMAIN:-wordpress}
+PROJECT_NAME=$(echo "$DOMAIN" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | tr -d '\r' | sed 's/^-//;s/-$//')
 
 read -p "WP Site Title: " TITLE
 
@@ -61,7 +61,7 @@ sed -i 's/\r//' .env
 sed -i "s/^DOMAIN_NAME=.*/DOMAIN_NAME=$DOMAIN/" .env
 sed -i "s/^DB_ROOT_PASSWORD=.*/DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD/" .env
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
-sed -i "s/^PROJECT_NAME=.*/PROJECT_NAME=$PROJECT_NAME/" .env
+sed -i "s/^COMPOSE_PROJECT_NAME=.*/COMPOSE_PROJECT_NAME=$PROJECT_NAME/" .env
 
 export $(grep -v '^#' .env | xargs)
 
