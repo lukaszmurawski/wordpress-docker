@@ -119,6 +119,13 @@ if [ -n "$LANG" ]; then
     docker compose run --rm wpcli wp language core install "$LANG" --activate
 fi
 
+# INSTALL PLUGINS
+echo "Installing plugins..."
+docker compose run --rm wpcli wp plugin install wp-mail-smtp --activate
+
+echo "Configuring WP Mail SMTP..."
+docker compose run --rm wpcli wp option update wp_mail_smtp '{"mail":{"mailer":"smtp"},"smtp":{"host":"mailpit","port":1025,"encryption":"none","auth":false}}' --format=json
+
 # FIX PERMISSIONS
 echo "Fixing permissions..."
 docker compose exec -u root wordpress chmod -R u=rwX,go=rX /var/www/html
